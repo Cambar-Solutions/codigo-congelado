@@ -73,12 +73,12 @@ FALLBACK_QUESTIONS = [
 ]
 
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
     return send_from_directory("static", "index.html")
 
 
-@app.route("/api/question")
+@app.route("/api/question", methods=["GET"])
 def get_question():
     topic = random.choice(TOPICS)
 

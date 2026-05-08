@@ -91,12 +91,12 @@ const goal = { x: 580, y: 92, w: 24, h: 38 };
 const keys = {};
 const justPressed = new Set();
 
-window.addEventListener('keydown', (e) => {
+globalThis.addEventListener('keydown', (e) => {
   if (!keys[e.code]) justPressed.add(e.code);
   keys[e.code] = true;
   if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
 });
-window.addEventListener('keyup', (e) => { keys[e.code] = false; });
+globalThis.addEventListener('keyup', (e) => { keys[e.code] = false; });
 
 const left  = () => keys['ArrowLeft']  || keys['KeyA'];
 const right = () => keys['ArrowRight'] || keys['KeyD'];
