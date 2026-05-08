@@ -561,6 +561,7 @@ function drawDK() {
 
 function drawBarrel(b) {
   const x = Math.round(b.x), y = Math.round(b.y);
+
   if (b.flaming) {
     const flick = b.flameAnim < 6;
     ctx.fillStyle = flick ? '#ffd23f' : '#ff7b00';
@@ -569,27 +570,21 @@ function drawBarrel(b) {
     ctx.fillRect(x + 13, y - 4, 3, 4);
     ctx.fillStyle = flick ? '#fff5b3' : '#ffd23f';
     ctx.fillRect(x + 8, y - 5, 2, 4);
-    ctx.fillStyle = '#b22222';
-    ctx.fillRect(x, y, 18, 18);
-    ctx.fillStyle = '#7a0e0e';
-    ctx.fillRect(x, y + 2,  18, 2);
-    ctx.fillRect(x, y + 14, 18, 2);
-    ctx.fillStyle = '#ff7b00';
-    const r = Math.abs(Math.floor(b.rot * 3) % 4);
-    for (let i = 0; i < 3; i++) {
-      ctx.fillRect(x + 2 + ((i * 6 + r) % 14), y + 5, 2, 8);
-    }
-  } else {
-    ctx.fillStyle = '#8a4a18';
-    ctx.fillRect(x, y, 18, 18);
-    ctx.fillStyle = '#5b2e0c';
-    ctx.fillRect(x, y + 2, 18, 2);
-    ctx.fillRect(x, y + 14, 18, 2);
-    ctx.fillStyle = '#a86a30';
-    const r = Math.abs(Math.floor(b.rot * 3) % 4);
-    for (let i = 0; i < 3; i++) {
-      ctx.fillRect(x + 2 + ((i * 6 + r) % 14), y + 5, 2, 8);
-    }
+  }
+
+  const palette = b.flaming
+    ? { body: '#b22222', hoops: '#7a0e0e', staves: '#ff7b00' }
+    : { body: '#8a4a18', hoops: '#5b2e0c', staves: '#a86a30' };
+
+  ctx.fillStyle = palette.body;
+  ctx.fillRect(x, y, 18, 18);
+  ctx.fillStyle = palette.hoops;
+  ctx.fillRect(x, y + 2,  18, 2);
+  ctx.fillRect(x, y + 14, 18, 2);
+  ctx.fillStyle = palette.staves;
+  const r = Math.abs(Math.floor(b.rot * 3) % 4);
+  for (let i = 0; i < 3; i++) {
+    ctx.fillRect(x + 2 + ((i * 6 + r) % 14), y + 5, 2, 8);
   }
 }
 
