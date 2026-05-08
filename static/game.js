@@ -14,7 +14,8 @@ const JUMP_V = -10.5;
 const MOVE_SPEED = 2.4;
 const CLIMB_SPEED = 1.8;
 const BARREL_SPEED = 1.6;
-const BARREL_INTERVAL = 200;
+const FLAME_SPEED_MULT = 1.45;
+const BARREL_INTERVAL = 120;
 
 let phase = 'menu';
 let score = 0;
@@ -44,12 +45,14 @@ function clearChildren(el) {
   while (el.firstChild) el.removeChild(el.firstChild);
 }
 
+// openSide: -1 = abierta a la izquierda, +1 = abierta a la derecha, 0 = cerrada
+// Define la direccion que tomara el barril al aterrizar en esa plataforma.
 const platforms = [
-  { x1: 0,   x2: 640, y: 570 },
-  { x1: 0,   x2: 560, y: 460 },
-  { x1: 80,  x2: 640, y: 350 },
-  { x1: 0,   x2: 560, y: 240 },
-  { x1: 80,  x2: 640, y: 130 },
+  { x1: 0,   x2: 640, y: 570, openSide: 0  },
+  { x1: 0,   x2: 560, y: 460, openSide: 1  },
+  { x1: 80,  x2: 640, y: 350, openSide: -1 },
+  { x1: 0,   x2: 560, y: 240, openSide: 1  },
+  { x1: 80,  x2: 640, y: 130, openSide: -1 },
 ];
 
 const ladders = [
@@ -246,8 +249,13 @@ function update() {
 
   barrelTimer--;
   if (barrelTimer <= 0) {
-    spawnBarrel();
-    barrelTimer = BARREL_INTERVAL - Math.min(80, level * 8);
+    const flaming = level >= 2 && Math.random() < 0.35;
+    spawnBarrel(flaming);
+    if (level >= 2 && Math.random() < 0.22) {
+      barrelTimer = 28;
+    } else {
+      barrelTimer = Math.max(45, BARREL_INTERVAL - level * 22);
+    }
   }
 
   for (let i = barrels.length - 1; i >= 0; i--) {
@@ -257,6 +265,7 @@ function update() {
     b.x += b.vx;
     b.y += b.vy;
     b.rot += b.vx * 0.08;
+    if (b.flaming) b.flameAnim = (b.flameAnim + 1) % 12;
 
     for (const p of platforms) {
       if (b.x + b.w / 2 > p.x1 && b.x + b.w / 2 < p.x2) {
@@ -264,6 +273,13 @@ function update() {
         if (b.vy >= 0 && feet >= p.y && feet <= p.y + 14) {
           b.y = p.y - b.h;
           b.vy = 0;
+          if (b.lastPlatform !== p) {
+            b.lastPlatform = p;
+            if (p.openSide !== 0) {
+              const speed = BARREL_SPEED * (b.flaming ? FLAME_SPEED_MULT : 1);
+              b.vx = p.openSide * speed;
+            }
+          }
           break;
         }
       }
@@ -301,15 +317,20 @@ function update() {
   justPressed.clear();
 }
 
-function spawnBarrel() {
-  const dir = Math.random() > 0.5 ? 1 : -1;
+function spawnBarrel(flaming = false) {
+  // Siempre arrancan rodando a la izquierda: la plataforma top (y=130) esta
+  // abierta del lado izquierdo, asi cada barril recorre todas las plataformas.
+  const speed = BARREL_SPEED * (flaming ? FLAME_SPEED_MULT : 1);
   barrels.push({
     x: dk.x + dk.w + 4,
     y: dk.y + 14,
     w: 18, h: 18,
-    vx: BARREL_SPEED * dir,
+    vx: -speed,
     vy: 0,
     rot: 0,
+    flaming,
+    flameAnim: 0,
+    lastPlatform: null,
   });
   dk.anim = 12;
 }
@@ -540,15 +561,35 @@ function drawDK() {
 
 function drawBarrel(b) {
   const x = Math.round(b.x), y = Math.round(b.y);
-  ctx.fillStyle = '#8a4a18';
-  ctx.fillRect(x, y, 18, 18);
-  ctx.fillStyle = '#5b2e0c';
-  ctx.fillRect(x, y + 2, 18, 2);
-  ctx.fillRect(x, y + 14, 18, 2);
-  ctx.fillStyle = '#a86a30';
-  const r = Math.abs(Math.floor(b.rot * 3) % 4);
-  for (let i = 0; i < 3; i++) {
-    ctx.fillRect(x + 2 + ((i * 6 + r) % 14), y + 5, 2, 8);
+  if (b.flaming) {
+    const flick = b.flameAnim < 6;
+    ctx.fillStyle = flick ? '#ffd23f' : '#ff7b00';
+    ctx.fillRect(x + 1,  y - 5, 3, 5);
+    ctx.fillRect(x + 7,  y - 8, 4, 8);
+    ctx.fillRect(x + 13, y - 4, 3, 4);
+    ctx.fillStyle = flick ? '#fff5b3' : '#ffd23f';
+    ctx.fillRect(x + 8, y - 5, 2, 4);
+    ctx.fillStyle = '#b22222';
+    ctx.fillRect(x, y, 18, 18);
+    ctx.fillStyle = '#7a0e0e';
+    ctx.fillRect(x, y + 2,  18, 2);
+    ctx.fillRect(x, y + 14, 18, 2);
+    ctx.fillStyle = '#ff7b00';
+    const r = Math.abs(Math.floor(b.rot * 3) % 4);
+    for (let i = 0; i < 3; i++) {
+      ctx.fillRect(x + 2 + ((i * 6 + r) % 14), y + 5, 2, 8);
+    }
+  } else {
+    ctx.fillStyle = '#8a4a18';
+    ctx.fillRect(x, y, 18, 18);
+    ctx.fillStyle = '#5b2e0c';
+    ctx.fillRect(x, y + 2, 18, 2);
+    ctx.fillRect(x, y + 14, 18, 2);
+    ctx.fillStyle = '#a86a30';
+    const r = Math.abs(Math.floor(b.rot * 3) % 4);
+    for (let i = 0; i < 3; i++) {
+      ctx.fillRect(x + 2 + ((i * 6 + r) % 14), y + 5, 2, 8);
+    }
   }
 }
 
