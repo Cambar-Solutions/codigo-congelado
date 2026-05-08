@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Codigo Congelado</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="cabinet">
+    <div class="marquee">CODIGO CONGELADO</div>
+
+    <div class="screen-wrap">
+      <canvas id="game" width="640" height="600"></canvas>
+
+      <div id="hud">
+        <div>VIDAS <span id="lives">3</span></div>
+        <div>PUNTOS <span id="score">0</span></div>
+        <div>NIVEL <span id="level">1</span></div>
+      </div>
+
+      <div id="overlay" class="overlay hidden">
+        <div class="modal">
+          <div class="modal-title" id="qTitle">PREGUNTA</div>
+          <div class="modal-q" id="qText">...</div>
+          <pre class="modal-code" id="qCode"></pre>
+          <div class="options" id="qOptions"></div>
+          <div class="modal-feedback" id="qFeedback"></div>
+        </div>
+      </div>
+
+      <div id="startOverlay" class="overlay">
+        <div class="modal start">
+          <div class="modal-title big">CODIGO CONGELADO</div>
+          <div class="modal-q">
+            Sube las plataformas, esquiva barriles y agarra el martillo.<br/>
+            Pero cuidado: cada salto sobre un barril o herramienta lanza una pregunta de programacion.<br/>
+            Si fallas... el juego se complica.
+          </div>
+          <div class="controls">
+            <div>FLECHAS / WASD &nbsp;-&nbsp; mover</div>
+            <div>ARRIBA / W &nbsp;-&nbsp; subir escalera</div>
+            <div>ESPACIO &nbsp;-&nbsp; saltar</div>
+          </div>
+          <button id="startBtn" class="press-btn">PRESS START</button>
+        </div>
+      </div>
+
+      <div id="endOverlay" class="overlay hidden">
+        <div class="modal">
+          <div class="modal-title big" id="endTitle">GAME OVER</div>
+          <div class="modal-q" id="endMsg"></div>
+          <button id="restartBtn" class="press-btn">JUGAR DE NUEVO</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">INSERT COIN &middot; 2026</div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
